@@ -9,15 +9,16 @@ __license__ = 'GPL'
 __version__ = '0.7'
 __status__ = 'Development'
 
-from urllib2 import urlopen
-from os.path import basename, join, exists
-from os import mkdir, listdir
-from urlparse import urlsplit
-from BeautifulSoup import BeautifulSoup
-from zipfile import ZipFile
-import sys
-import re
+
 import json
+import re
+import sys
+from argparse import ArgumentParser
+from BeautifulSoup import BeautifulSoup
+from os import listdir, mkdir
+from os.path import basename, exists, join
+from urllib2 import urlopen
+from zipfile import ZipFile
 
 # Based on http://stackoverflow.com/a/3160819
 class ProgressBar(object):
@@ -38,40 +39,25 @@ class ProgressBar(object):
         else:
             sys.stdout.write('\n')
 
-def get_feed_url(url):
-    # Code for getting address of picasa web
-    if urlsplit(url).path.startswith('/data/feed/'):
-        #if the link given is a feed - picasaweb
-        return url
-    elif urlsplit(url).netloc == "picasaweb.google.com":
-        y = urlopen(url).read()
-        soup = BeautifulStoneSoup(y,selfClosingTags=['meta','link','base'])
-        for link in soup.findAll('link'):
-            if link.has_key('rel'):
-                if link['rel']=="alternate":
-                    url = link['href']
-                    return url
-
 def get_photo_urls(url):
     """ Get individual photo urls and other info, given url of main page.
     """
-    if urlsplit(url).netloc == "picasaweb.google.com":
-        content = urlopen(url).read()
-        soup = BeautifulSoup(content)
-        for script in soup.findAll('script'):
-            if 'albumCoverUrl' in script.text:
-                break
-        script = ''.join(script.text.splitlines())
-        json_like = re.findall('{.*}', script)[0]
-        F = '"feed":'
-        start, end = json_like.find(F)+len(F), json_like.rfind('}}')
-        pics_dict = json.loads(json_like[start:end])
-        info = [dict(url=pic['media']['content'][0]['url'],
-                     size=pic['size'],
-                     height=pic['height'],
-                     width=pic['width']) for pic in pics_dict['entry']]
-        print 'Found %d pictures' %(len(info),)
-        return info
+    content = urlopen(url).read()
+    soup = BeautifulSoup(content)
+    for script in soup.findAll('script'):
+        if 'albumCoverUrl' in script.text:
+            break
+    script = ''.join(script.text.splitlines())
+    json_like = re.findall('{.*}', script)[0]
+    F = '"feed":'
+    start, end = json_like.find(F)+len(F), json_like.rfind('}}')
+    pics_dict = json.loads(json_like[start:end])
+    info = [dict(url=pic['media']['content'][0]['url'],
+                    size=pic['size'],
+                    height=pic['height'],
+                    width=pic['width']) for pic in pics_dict['entry']]
+    print 'Found %d pictures' %(len(info),)
+    return info
 
 def get_size_dir_url(url, size):
     base, pic = url.rsplit('/', 1)
