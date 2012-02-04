@@ -103,9 +103,18 @@ def create_zip_file(directory):
             photo_zip.write(join(directory, photo))
 
 if __name__ == '__main__':
-    url = raw_input('Enter the Picasa web album/feed url : ')
+    parser = ArgumentParser(description=__doc__)
+
+    parser.add_argument('url', help='picasa web album url for download')
+    parser.add_argument('--path', default='web_album',
+                        help='Path to save the album in')
+    parser.add_argument('--zip', action='store_true', default=False,
+                        help='Create a zip archive of the album')
+    args = parser.parse_args()
+
+    url = args.url
     info = get_photo_urls(url)
-    name_album = raw_input('Enter a path/directory for the album: ')
-    download_photos(info, name_album)
+    album = args.path
+    download_photos(info, album)
     if '--zip' in sys.argv:
-        create_zip_file(name_album)
+        create_zip_file(album)
