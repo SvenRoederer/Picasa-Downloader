@@ -122,5 +122,5 @@ if __name__ == '__main__':
     info = get_photo_urls(url)
     album = args.path
     download_photos(info, album)
-    if '--zip' in sys.argv:
+    if args.zip:
         create_zip_file(album)
