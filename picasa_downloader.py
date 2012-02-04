@@ -1,7 +1,13 @@
-#Author: Anoop Jacob Thomas<anoopjt@gmail.com>
-#Email: anoopjt@gmail.com
-#Web: http://anoop.caremedia.org
-#License: GPLv3 or later
+#!/usr/bin/env python
+"""
+picasa_downloader.py: A little script to download a complete Picasa web album.
+"""
+
+__author__ = ['Anoop Jacob Thomas', 'Puneeth Chaganti']
+__email__ = 'anoopjt@gmail.com'
+__license__ = 'GPL'
+__version__ = '0.7'
+__status__ = 'Development'
 
 from urllib2 import urlopen
 from os.path import basename, join, exists
