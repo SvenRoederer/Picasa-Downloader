@@ -17,7 +17,7 @@ from argparse import ArgumentParser
 from BeautifulSoup import BeautifulSoup
 from os import listdir, mkdir
 from os.path import basename, exists, join
-from urllib2 import urlopen
+from urllib2 import urlopen, HTTPError
 from zipfile import ZipFile
 
 # Based on http://stackoverflow.com/a/3160819
@@ -59,7 +59,9 @@ def get_photo_urls(url):
     print 'Found %d pictures' %(len(info),)
     return info
 
-def get_size_dir_url(url, size):
+def get_size_dir_url(url, size=None):
+    if not size:
+        return url
     base, pic = url.rsplit('/', 1)
     return '/'.join([base, 's%s' %(size,), pic])
 
@@ -77,14 +79,18 @@ def download_photos(info, location):
 
         # Find the dimension to use for getting largest possible picture.
         image_fp, max_size = None, 0
-        for dim in (width, height):
-            img_fp = urlopen(get_size_dir_url(url, dim))
-            content_length = img_fp.headers.get('content-length')
-            if content_length > max_size:
-                image_fp = img_fp
-                max_size = content_length
-            if content_length == size:
-                break
+        for dim in (width, height, None):
+            try:
+                url_ = get_size_dir_url(url, dim)
+                img_fp = urlopen(url_)
+                content_length = img_fp.headers.get('content-length')
+                if content_length > max_size:
+                    image_fp = img_fp
+                    max_size = content_length
+                if content_length == size:
+                    break
+            except HTTPError:
+                continue
 
         if max_size < size:
             print "Couldn't get original size for %s" %(url,)
