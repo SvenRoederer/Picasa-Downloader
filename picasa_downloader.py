@@ -5,11 +5,11 @@
 
 from urllib2 import urlopen
 from os.path import basename, join, exists
-from os import mkdir
+from os import mkdir, listdir
 from urlparse import urlsplit
 from BeautifulSoup import BeautifulSoup
+from zipfile import ZipFile
 import sys
-import time
 import re
 import json
 
@@ -102,9 +102,18 @@ def download_photos(info, location):
         output.close()
         progress_bar.update(i)
 
+def create_zip_file(directory):
+    photos = listdir(directory)
+    zip_name = '%s.zip' %(basename(directory),)
+    print 'Creating zip %s' %(zip_name,)
+    with ZipFile(zip_name, 'w') as photo_zip:
+        for photo in photos:
+            photo_zip.write(join(directory, photo))
 
 if __name__ == '__main__':
     url = raw_input('Enter the Picasa web album/feed url : ')
     info = get_photo_urls(url)
     name_album = raw_input('Enter a path/directory for the album: ')
     download_photos(info, name_album)
+    if '--zip' in sys.argv:
+        create_zip_file(name_album)
