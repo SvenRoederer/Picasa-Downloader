@@ -59,11 +59,9 @@ def get_photo_urls(url):
     print 'Found %d pictures' %(len(info),)
     return info
 
-def get_size_dir_url(url, size=None):
-    if not size:
-        return url
+def get_size_dir_url(url):
     base, pic = url.rsplit('/', 1)
-    return '/'.join([base, 's%s' %(size,), pic])
+    return '/'.join([base, 'd', pic])
 
 def download_photos(info, location):
     if not exists(location):
@@ -79,18 +77,13 @@ def download_photos(info, location):
 
         # Find the dimension to use for getting largest possible picture.
         image_fp, max_size = None, 0
-        for dim in (width, height, None):
-            try:
-                url_ = get_size_dir_url(url, dim)
-                img_fp = urlopen(url_)
-                content_length = img_fp.headers.get('content-length')
-                if content_length > max_size:
-                    image_fp = img_fp
-                    max_size = content_length
-                if content_length == size:
-                    break
-            except HTTPError:
-                continue
+        try:
+            url_ = get_size_dir_url(url)
+            image_fp = urlopen(url_)
+            content_length = image_fp.headers.get('content-length')
+            max_size = content_length
+        except HTTPError:
+            continue
 
         if max_size < size:
             print "Couldn't get original size for %s" %(url,)
