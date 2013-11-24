@@ -53,6 +53,7 @@ def get_photo_urls(url):
     start, end = json_like.find(F)+len(F), json_like.rfind('}}')
     pics_dict = json.loads(json_like[start:end])
     info = [dict(url=pic['media']['content'][0]['url'],
+                    description=pic['media']['description'],
                     size=pic['size'],
                     height=pic['height'],
                     width=pic['width']) for pic in pics_dict['entry']]
@@ -87,7 +88,11 @@ def download_photos(info, location):
 
         if max_size < size:
             print "Couldn't get original size for %s" %(url,)
-        fname = join(location, basename(url))
+        if (pic['description'] == ""):
+	    fname = join(location, basename(url))
+	else:
+	    (name, sep, end) =basename(url).rpartition('.')
+	    fname = join(location, name + '_' + pic['description'] + sep + end)
         output = open(fname,'wb')
         output.write(image_fp.read())
         output.close()
