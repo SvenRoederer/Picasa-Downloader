@@ -3,8 +3,8 @@
 picasa_downloader.py: A little script to download a complete Picasa web album.
 """
 
-__author__ = ['Anoop Jacob Thomas', 'Puneeth Chaganti']
-__email__ = 'anoopjt@gmail.com'
+__author__ = ['Anoop Jacob Thomas', 'Puneeth Chaganti', 'Sven Roederer']
+__email__ = ['anoopjt@gmail.com', '', 'devel-sven@geroedel.de']
 __license__ = 'GPL'
 __version__ = '0.7'
 __status__ = 'Development'
